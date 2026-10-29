@@ -1,0 +1,94 @@
+{
+  "sections": [
+    {
+      "title": "Music",
+      "items": [
+        {
+          "text": "Cool Album - Bob James"
+        },
+        {
+          "text": "Deviled Eggs - Celarb",
+          "links": [
+            {
+              "label": "YouTube",
+              "url": "https://youtube.com/@celarb"
+            },
+            {
+              "label": "Instagram",
+              "url": "https://www.instagram.com/celarb.mp3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Code",
+      "items": [
+        {
+          "text": "HTML + CSS + JavaScript - Jambles"
+        }
+      ]
+    },
+    {
+      "title": "Media",
+      "items": [
+        {
+          "text": "Horse Channel Logo - Jambles"
+        },
+        {
+          "text": "Horse Moon Photo - Gaspar Zaldo",
+          "links": [
+            {
+              "label": "Pexels",
+              "url": "https://www.pexels.com/photo/majestic-horse-in-pasture-at-sunset-with-full-moon-32822356/"
+            }
+          ]
+        },
+        {
+          "text": "Horse Eating Grass Video - Matthias Köhler",
+          "links": [
+            {
+              "label": "Pexels",
+              "url": "https://www.pexels.com/video/peaceful-horses-grazing-in-scenic-meadow-35199961/"
+            }
+          ]
+        },
+        {
+          "text": "Sad Horse - Jacek Plak",
+          "links": [
+            {
+              "label": "Pexels",
+              "url": "https://www.pexels.com/photo/a-close-up-shot-of-a-brown-horse-with-bridle-on-it-s-face-14704387/"
+            }
+          ]
+        },
+        {
+          "text": "Happy Horse - M. Winkeltier",
+          "links": [
+            {
+              "label": "Pexels",
+              "url": "https://www.pexels.com/photo/low-angle-shot-of-a-brown-horse-7731708/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "API",
+      "items": [
+        {
+          "text": "Weather forecast and geocoding - Open-Meteo",
+          "links": [
+            {
+              "label": "open-meteo.com",
+              "url": "https://open-meteo.com/"
+            }
+          ]
+        },
+        {
+          "text": "Browser location - Geolocation API"
+        }
+      ]
+    }
+  ]
+}
