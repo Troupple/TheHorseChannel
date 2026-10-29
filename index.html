@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>The Horse Channel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="/svg/Horsechannel.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="french.css">
+</head><body>
+<section class="intro-screen" id="introScreen" aria-label="Horse Channel title screen" data-i18n-aria-label="intro-label">
+  <div class="intro-frame">
+    <video class="intro-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+      <source src="/horses/HorsePrev.mp4" type="video/mp4">
+    </video>
+    <div class="intro-shade" aria-hidden="true"></div>
+    <div class="intro-content">
+      <img class="intro-logo" src="/svg/Horsechannel.svg" alt="The Horse Channel" data-i18n-alt="logo-alt">
+      <p class="intro-countdown"><span data-i18n="countdown-label">Broadcast begins in</span><span id="introCountdown">03:00</span></p>
+      <div class="intro-actions">
+        <button class="intro-start" id="startNow" type="button" data-i18n="start-now">Start now</button>
+        <button class="intro-start" id="showCredits" type="button" data-i18n="credits">Credits</button>
+        <button class="intro-start" id="showSettings" type="button" data-i18n="settings">Settings</button>
+      </div>
+    </div>
+  </div>
+</section>
+<main class="stage">
+  <div class="stage-static">
+  <img class="logo" src="/svg/Horsechannel.svg" width="478" height="379" alt="The Horse Channel" data-i18n-alt="logo-alt">
+  <div class="banner"><h1 id="title" data-i18n="screen-weather-city">Weather by city</h1></div>
+  <section class="panel">
+    <div class="screen s1 on">
+    <div class="obs" id="obs"><span class="h"></span><span class="h">&deg;C</span><span class="h" data-weather-i18n="weather">Weather</span><span class="h" data-weather-i18n="wind-kmh">Wind km/h</span><div id="cityRows"></div></div>
+  </div>
+    <div class="screen s2"><div class="cur"><div id="ci"></div><div class="big" id="ct">--</div><div id="cc">--</div></div>
+      <div class="kv"><span data-weather-i18n="wind">Wind:</span><span id="cw">--</span><span data-weather-i18n="humidity">Humidity:</span><span id="ch">--</span><span data-weather-i18n="dew-point">Dew Point:</span><span id="cd">--</span><span data-weather-i18n="visibility">Visibility:</span><span id="cv">--</span><span data-weather-i18n="pressure">Pressure:</span><span id="cp">--</span><span data-weather-i18n="feels-like">Feels Like:</span><span id="cf">--</span><span data-weather-i18n="wind-chill">Wind Chill:</span><span id="windchill">--</span></div></div>
+    <div class="screen s3"><div><div class="h2" data-i18n="moon-data">Moon Data:</div><div id="moons"></div></div>
+      <div class="sun-panel"><div class="alm"><span></span><span class="h" data-i18n="today">Today</span><span class="h" data-i18n="tomorrow">Tomorrow</span><span data-i18n="sunrise">Sunrise:</span><span id="sr0">--</span><span id="sr1">--</span><span data-i18n="sunset">Sunset:</span><span id="ss0">--</span><span id="ss1">--</span></div><img class="moon-horse" src="/horses/MoonHorse.webp" alt="Horse beneath the moon" data-i18n-alt="moon-horse-alt"></div></div>
+    <div class="screen s4"><div id="lf" data-i18n="forecast-loading">Forecast loading...</div></div>
+    <div class="screen s5" id="ext"></div>
+    <div class="screen s6"><div class="horse-week"><h2 data-i18n="horse-week">Horse of the Week</h2><img id="horseWeekImage" src="/horses/HorseOfTheWeek.webp" alt="Horse of the Week" data-i18n-alt="horse-week"><p class="subtext" id="horseWeekSubtext" data-i18n="horse-week-subtext">A few curious horses stop by to say hello.</p><p class="contact"><span data-i18n="submit-horse">Want to submit a horse?</span><br><span data-i18n="contact">Contact: Hi@jambles.fun</span></p></div></div>
+    <div class="screen s7"><div class="hoofcast"><div class="hoofcast-copy"><h2 data-i18n="hoofcast">Hoofcast</h2><p class="hoofcast-location" id="hoofcastLocation">Weather at --</p><p class="hoofcast-status mixed" id="hoofcastStatus" data-i18n="waiting-weather">Waiting for weather...</p><div class="hoofcast-stats" id="hoofcastStats"></div></div><img class="hoofcast-image" id="hoofcastImage" src="/horses/GoodHorse.webp" alt="Happy horse" data-i18n-alt="happy-horse"></div></div>
+  </section>
+  <div class="bar"><p id="pressure" data-weather-i18n="barometric-pressure">Barometric Pressure: -- kPa</p></div>
+  </div>
+  <time><span class="date">MON DEC 2</span><span class="time">9:13:24 PM</span></time>
+  <div class="ticker"><div class="ticker-track"><ul>
+    <li data-i18n="ticker-station">You're watching The Horse Channel. Local on the 8s.</li>
+    <li id="updates" class="ticker-update" data-i18n="ticker-loading">Latest observations loading...</li>
+    <li class="ticker-alert" hidden></li>
+    <li class="ticker-music" data-i18n="music-waiting">Music: waiting for a selection</li>
+    <li class="ticker-city">Weather For Winnipeg</li>
+  </ul><ul aria-hidden="true">
+    <li data-i18n="ticker-station">You're watching The Horse Channel. Local on the 8s.</li>
+    <li class="ticker-update" data-i18n="ticker-loading">Latest observations loading...</li>
+    <li class="ticker-alert" hidden></li>
+    <li class="ticker-music" data-i18n="music-waiting">Music: waiting for a selection</li>
+    <li class="ticker-city">Weather For Winnipeg</li>
+  </ul></div></div>
+</main>
+<dialog class="config-dialog" id="configDialog">
+  <h2 data-i18n="settings-title">Channel configuration</h2>
+  <label><input id="locationToggle" type="checkbox"> <span data-i18n="use-location">Use my browser location</span></label>
+  <label for="locationInput" data-i18n="set-city-label">Set a city</label>
+  <div class="location-form"><input id="locationInput" type="text" autocomplete="address-level2" placeholder="Enter a city" data-i18n-placeholder="enter-city"><button id="setLocation" type="button" data-i18n="set-location">Set location</button></div>
+  <label><input id="muteToggle" type="checkbox"> <span data-i18n="mute-audio">Mute audio</span></label>
+  <label><input id="disableTitleMenuToggle" type="checkbox"> <span data-i18n="disable-title-menu">Disable title menu</span></label>
+  <p class="config-note" data-i18n="burn-in-note">Note: disabling this will increase the chances of screen burn in.</p>
+  <p data-i18n="language-label">Language</p>
+  <div class="language-options" role="group" aria-label="Language" data-i18n-aria-label="language-label"><button id="languageEN" type="button" aria-pressed="true">EN</button><button id="languageFR" type="button" aria-pressed="false">FR</button><button id="languageFREN" type="button" aria-pressed="false">FR+EN</button></div>
+  <p class="config-status" id="configStatus" aria-live="polite"></p>
+  <button id="configClose" type="button" data-i18n="close">Close</button>
+</dialog>
+<dialog class="credits-dialog" id="creditsDialog" aria-labelledby="creditsTitle">
+  <h2 id="creditsTitle" data-i18n="credits">Credits</h2>
+  <div id="creditsContent" aria-live="polite" data-i18n="credits-loading">Loading credits...</div>
+  <p class="credits-disclaimer"><span data-i18n="credits-disclaimer">Credits are provided for attribution only. Listing a person, service, or platform does not imply their endorsement of or affiliation with The Horse Channel. Any person seeking removal of content from this Site shall submit a written request to: </span><a href="mailto:removals@jambles.fun">removals@jambles.fun</a><span data-i18n="credits-disclaimer-end">. The weather data for this site is provided by Open-Meteo and is subject to a daily usage cap of 10,000 requests; if the weather stops updating, that is likely why.</span></p>
+  <button id="creditsClose" type="button" data-i18n="close">Close</button>
+</dialog>
+<script src="app.js"></script></body></html>

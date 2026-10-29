@@ -1,0 +1,174 @@
+html[lang="fr"] .banner h1 {
+  font-size: calc(var(--u) * 3.1);
+}
+
+html[lang="fr"] .obs .h {
+  font-size: calc(var(--u) * 2.5);
+}
+
+html[lang="fr"] .bar p {
+  white-space: nowrap;
+  font-size: calc(var(--u) * 2.8);
+}
+
+html[lang="fr"] .s2 {
+  grid-template-columns: minmax(0, 0.68fr) minmax(0, 1.32fr);
+  column-gap: calc(var(--u) * 1.5);
+}
+
+html[lang="fr"] .kv {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  column-gap: calc(var(--u) * 1);
+  row-gap: calc(var(--u) * 0.35);
+  line-height: 1.05;
+  font-size: calc(var(--u) * 3.3);
+}
+
+html[lang="fr"] .kv span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+html[data-language="fr"] .kv #cp {
+  position: relative;
+  right: calc(var(--u) * 1.5);
+  font-size: calc(var(--u) * 2.8);
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+html[lang="fr"] .s3 {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  column-gap: calc(var(--u) * 1.2);
+}
+
+html[lang="fr"] .alm {
+  font-size: calc(var(--u) * 2.9);
+}
+
+html[lang="fr"] .alm .h,
+html[lang="fr"] .h2 {
+  font-size: calc(var(--u) * 2.6);
+}
+
+html[lang="fr"] .sun-panel {
+  width: 100%;
+  min-width: 0;
+}
+
+html[lang="fr"] .sun-panel .alm {
+  width: 100%;
+  grid-template-columns: max-content repeat(2, minmax(0, 1fr));
+  column-gap: calc(var(--u) * 0.8);
+  font-size: calc(var(--u) * 2.6);
+}
+
+html[lang="fr"] .sun-panel .alm .h,
+html[lang="fr"] .sun-panel .alm span:nth-child(3n + 2),
+html[lang="fr"] .sun-panel .alm span:nth-child(3n) {
+  text-align: center;
+}
+
+html[lang="fr"] .sun-panel .alm .h {
+  font-size: calc(var(--u) * 2.5);
+  white-space: nowrap;
+}
+
+html[lang="fr"] .sun-panel .alm span:nth-child(3n + 1) {
+  white-space: nowrap;
+  text-align: left;
+}
+
+html[lang="fr"] .mr {
+  grid-template-columns: calc(var(--u) * 5.2) minmax(0, 1fr) max-content;
+  column-gap: calc(var(--u) * 0.5);
+  font-size: calc(var(--u) * 2.8);
+}
+
+html[lang="fr"] .mr span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+html[lang="fr"] .mr span:nth-child(2) {
+  white-space: nowrap;
+}
+
+html[lang="fr"] .mr span:nth-child(3) {
+  font-size: inherit;
+}
+
+html[lang="fr"] .mr svg {
+  width: calc(var(--u) * 4.6);
+  height: calc(var(--u) * 4.6);
+  justify-self: center;
+}
+
+html[lang="fr"] #lf p {
+  font-size: calc(var(--u) * 3.3);
+}
+
+html[lang="fr"] .day h3 {
+  font-size: calc(var(--u) * 3.3);
+}
+
+html[lang="fr"] .day .c {
+  font-size: calc(var(--u) * 2.7);
+  overflow-wrap: anywhere;
+}
+
+html[lang="fr"] .day .t {
+  font-size: calc(var(--u) * 3);
+}
+
+html[lang="fr"] .horse-week {
+  min-height: 0;
+  gap: calc(var(--u) * 0.45);
+}
+
+html[lang="fr"] .horse-week img {
+  max-width: 85%;
+  height: calc(var(--u) * 23);
+  max-height: calc(var(--u) * 23);
+}
+
+html[lang="fr"] .horse-week .subtext {
+  max-width: 95%;
+  font-size: calc(var(--u) * 2.8);
+  line-height: 1.05;
+}
+
+html[lang="fr"] .horse-week .contact {
+  max-width: 95%;
+  font-size: calc(var(--u) * 2.8);
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+html[lang="fr"] .horse-week .contact br {
+  display: none;
+}
+
+html[lang="fr"] .horse-week .contact span:first-child::after {
+  content: ": ";
+}
+
+html[lang="fr"] .horse-week h2 {
+  font-size: calc(var(--u) * 3.5);
+}
+
+html[lang="fr"] .hoofcast-location {
+  font-size: calc(var(--u) * 2.8);
+}
+
+html[lang="fr"] .hoofcast-status {
+  font-size: calc(var(--u) * 3.8);
+}
+
+html[lang="fr"] .hoofcast-stat {
+  min-width: 0;
+  font-size: calc(var(--u) * 2.8);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
