@@ -658,11 +658,10 @@ function beginBroadcast(){
     }
     show(next);
   },20000); // Time till slide change
-  nextTrack();
+  if(player.paused)nextTrack();
 }
 function restartBroadcast(){
   clearInterval(rotationInterval);rotationInterval=null;
-  player.pause();
   show(0);
   introScreen.classList.remove("is-hidden");
   introVideo.currentTime=0;
