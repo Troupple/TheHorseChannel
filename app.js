@@ -3,6 +3,8 @@ const savedLanguage=localStorage.getItem(languageStorageKey);
 let languageMode=["fr","fr-en"].includes(savedLanguage)?savedLanguage:"en";
 let language=languageMode==="fr-en"?"fr":languageMode;
 let translations=null;
+let lastTrack=null;
+let customMusicTracks=[];
 const translationsReady=fetch("/json/translations.json").then(response=>{
   if(!response.ok)throw new Error("Translation request failed ("+response.status+")");
   return response.json();
@@ -55,9 +57,10 @@ function applyLanguage(){
   if(loadedCredits)renderCredits();
   if(configStatusMessage)setConfigStatus(configStatusMessage.key,configStatusMessage.values,configStatusMessage.fallback);
   if(lastTrack){
-    const title=lastTrack.replace(/\.mp3$/i,""),artist=lastTrack==="Deviled Eggs.mp3"?"Celarb":"Bob James";
+    const title=lastTrack.name.replace(/\.[^.]+$/,""),artist=lastTrack.original?"Celarb":tr("custom-music-artist",{},"Custom music");
     updateMusicTicker(tr("now-playing",{title,artist},"Now playing: {title} - {artist}"));
   }else updateMusicTicker(tr("music-waiting",{},"Music: waiting for a selection"));
+  renderCustomMusic();
   showWeather();
 }
 const defaultCities=[["Winnipeg",49.8844,-97.147],["Brandon",49.8483,-99.9502],["Portage",49.9728,-98.2926],["Steinbach",49.5253,-96.6845],["Selkirk",50.1439,-96.8839],["Thompson",55.7435,-97.8551]];
@@ -374,12 +377,18 @@ if(savedManualLocation)setCitiesNear(savedManualLocation.latitude,savedManualLoc
 else if(locationToggle.checked)requestLocation();
 
 // Start the shuffled playlist
-const musicTracks=["As It Happens.mp3","Deviled Eggs.mp3","Fugitive Life.mp3","Handara.mp3","Miniature.mp3","Movin' On.mp3","New York Samba.mp3","San Diego Stomp.mp3","Secret Wishes.mp3","So Much in Common.mp3","Terpsichore.mp3","The Night That Love Came Back.mp3","The Sponge.mp3"];
+const musicTracks=[{id:"Deviled Eggs.mp3",name:"Deviled Eggs.mp3",original:true}];
 const player=new Audio();player.volume=.50;
 const muteToggle=$("#muteToggle");
+const customMusicInput=$("#customMusicInput"),customMusicList=$("#customMusicList");
+const keepOriginalMusicOption=$("#keepOriginalMusicOption"),keepOriginalMusicToggle=$("#keepOriginalMusicToggle");
+const keepOriginalMusicStorageKey="horse-channel-keep-original-music";
+let keepOriginalMusic=localStorage.getItem(keepOriginalMusicStorageKey)==="true";
+let currentObjectUrl=null;
+let musicDatabasePromise=null;
 let muted=localStorage.getItem("horse-channel-muted")==="true";
 muteToggle.checked=muted;player.muted=muted;
-let shuffledTracks=[],lastTrack="";
+let shuffledTracks=[];
 const introScreen=$("#introScreen"),introVideo=$(".intro-video"),introCountdown=$("#introCountdown");
 let secondsUntilBroadcast=180,countdownTimer=null,broadcastTimer=null,completedCycles=0;
 let musicTickerText="Music: waiting for a selection";
@@ -392,20 +401,160 @@ muteToggle.addEventListener("change",()=>{
   localStorage.setItem("horse-channel-muted",String(muted));
   updateMusicTicker(musicTickerText);
 });
+function openMusicDatabase(){
+  if(!musicDatabasePromise){
+    musicDatabasePromise=new Promise((resolve,reject)=>{
+      const request=indexedDB.open("horse-channel-custom-music",1);
+      request.onupgradeneeded=()=>{
+        if(!request.result.objectStoreNames.contains("tracks"))request.result.createObjectStore("tracks",{keyPath:"id"});
+      };
+      request.onsuccess=()=>resolve(request.result);
+      request.onerror=()=>reject(request.error||new Error("Could not open custom music storage."));
+    });
+  }
+  return musicDatabasePromise;
+}
+function decodeId3Text(bytes){
+  if(!bytes.length)return "";
+  let decoder;
+  if(bytes[0]===0)decoder=new TextDecoder("windows-1252");
+  else if(bytes[0]===3)decoder=new TextDecoder("utf-8");
+  else if(bytes[0]===2)decoder=new TextDecoder("utf-16be");
+  else if(bytes[0]===1){
+    const hasBom=bytes.length>2&&((bytes[1]===0xff&&bytes[2]===0xfe)||(bytes[1]===0xfe&&bytes[2]===0xff));
+    decoder=new TextDecoder(hasBom&&bytes[1]===0xfe?"utf-16be":"utf-16le");
+  }else return "";
+  return decoder.decode(bytes.subarray(1)).split("\0").map(value=>value.trim()).filter(Boolean).join(", ");
+}
+async function readArtistMetadata(file){
+  const header=new Uint8Array(await file.slice(0,10).arrayBuffer());
+  if(header.length===10&&header[0]===0x49&&header[1]===0x44&&header[2]===0x33){
+    const version=header[3],flags=header[5];
+    if(version>=2&&version<=4&&!(flags&0x80)){
+      const tagSize=(header[6]<<21)|(header[7]<<14)|(header[8]<<7)|header[9];
+      const tagEnd=Math.min(file.size,10+tagSize);
+      let offset=10;
+      if(flags&0x40){
+        if(version===3){
+          const extendedSizeBytes=new Uint8Array(await file.slice(offset,offset+4).arrayBuffer());
+          if(extendedSizeBytes.length===4){
+            const extendedSize=new DataView(extendedSizeBytes.buffer).getUint32(0);
+            offset+=4+extendedSize;
+          }
+        }else if(version===4){
+          const extendedSizeBytes=new Uint8Array(await file.slice(offset,offset+4).arrayBuffer());
+          if(extendedSizeBytes.length===4){
+            const extendedSize=(extendedSizeBytes[0]<<21)|(extendedSizeBytes[1]<<14)|(extendedSizeBytes[2]<<7)|extendedSizeBytes[3];
+            offset+=extendedSize;
+          }
+        }
+      }
+      const frameHeaderSize=version===2?6:10;
+      while(offset+frameHeaderSize<=tagEnd){
+        const frameHeader=new Uint8Array(await file.slice(offset,offset+frameHeaderSize).arrayBuffer());
+        const frameId=String.fromCharCode(...frameHeader.subarray(0,version===2?3:4));
+        if(!frameId.trim()||frameHeader[0]===0)break;
+        const frameSize=version===2
+          ?(frameHeader[3]<<16)|(frameHeader[4]<<8)|frameHeader[5]
+          :version===4
+            ?(frameHeader[4]<<21)|(frameHeader[5]<<14)|(frameHeader[6]<<7)|frameHeader[7]
+            :(frameHeader[4]*0x1000000)+(frameHeader[5]<<16)+(frameHeader[6]<<8)+frameHeader[7];
+        const frameEnd=offset+frameHeaderSize+frameSize;
+        if(!frameSize||frameEnd>tagEnd)break;
+        const isArtistFrame=version===2?frameId==="TP1":frameId==="TPE1";
+        const formatFlags=version===2?0:frameHeader[9];
+        const unsupportedFlags=version===3?(formatFlags&0xe0)!==0:version===4?(formatFlags&0x4f)!==0:false;
+        if(isArtistFrame&&!unsupportedFlags){
+          const artist=decodeId3Text(new Uint8Array(await file.slice(offset+frameHeaderSize,frameEnd).arrayBuffer()));
+          if(artist)return artist;
+        }
+        offset=frameEnd;
+      }
+    }
+  }
+  if(file.size>=128){
+    const id3v1=new Uint8Array(await file.slice(file.size-128).arrayBuffer());
+    if(id3v1[0]===0x54&&id3v1[1]===0x41&&id3v1[2]===0x47){
+      return new TextDecoder("windows-1252").decode(id3v1.subarray(33,63)).replace(/\0/g,"").trim();
+    }
+  }
+  return "";
+}
+async function loadStoredCustomMusic(){
+  const database=await openMusicDatabase();
+  return new Promise((resolve,reject)=>{
+    const transaction=database.transaction("tracks","readonly");
+    const request=transaction.objectStore("tracks").getAll();
+    request.onsuccess=()=>resolve(request.result.filter(track=>track&&typeof track.id==="string"&&typeof track.name==="string"&&track.file instanceof Blob));
+    request.onerror=()=>reject(request.error||new Error("Could not load custom music."));
+    transaction.onabort=()=>reject(transaction.error||new Error("Custom music storage read was interrupted."));
+  });
+}
+async function saveCustomMusic(files){
+  const tracks=await Promise.all(files.map(async file=>({
+    id:Date.now().toString(36)+"-"+Math.random().toString(36).slice(2),
+    name:file.name,
+    artist:await readArtistMetadata(file),
+    file
+  })));
+  const database=await openMusicDatabase();
+  return new Promise((resolve,reject)=>{
+    const transaction=database.transaction("tracks","readwrite");
+    const store=transaction.objectStore("tracks");
+    for(const track of tracks)store.put(track);
+    transaction.oncomplete=resolve;
+    transaction.onerror=()=>reject(transaction.error||new Error("Could not save custom music."));
+    transaction.onabort=()=>reject(transaction.error||new Error("Custom music storage write was interrupted."));
+  });
+}
+async function deleteStoredCustomMusic(id){
+  const database=await openMusicDatabase();
+  return new Promise((resolve,reject)=>{
+    const transaction=database.transaction("tracks","readwrite");
+    transaction.objectStore("tracks").delete(id);
+    transaction.oncomplete=resolve;
+    transaction.onerror=()=>reject(transaction.error||new Error("Could not remove custom music."));
+    transaction.onabort=()=>reject(transaction.error||new Error("Custom music removal was interrupted."));
+  });
+}
+function renderCustomMusic(){
+  customMusicList.replaceChildren();
+  keepOriginalMusicOption.hidden=customMusicTracks.length===0;
+  keepOriginalMusicToggle.checked=keepOriginalMusic;
+  for(const track of customMusicTracks){
+    const row=document.createElement("li"),name=document.createTextNode(track.name),remove=document.createElement("button");
+    remove.type="button";
+    remove.dataset.trackId=track.id;
+    remove.textContent=tr("remove-custom-track",{},"Remove");
+    remove.setAttribute("aria-label",tr("remove-custom-track",{},"Remove")+" "+track.name);
+    row.append(name,remove);
+    customMusicList.append(row);
+  }
+}
+function availableMusicTracks(){
+  return customMusicTracks.length
+    ?[...customMusicTracks,...(keepOriginalMusic?musicTracks:[])]
+    :[...musicTracks];
+}
 function shuffleTracks(){
-  const tracks=[...musicTracks];
+  const tracks=availableMusicTracks();
   for(let i=tracks.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [tracks[i],tracks[j]]=[tracks[j],tracks[i]];
   }
-  if(tracks[0]===lastTrack)[tracks[0],tracks[1]]=[tracks[1],tracks[0]];
+  if(tracks.length>1&&tracks[0].id===lastTrack?.id)[tracks[0],tracks[1]]=[tracks[1],tracks[0]];
   return tracks;
 }
-function playTrack(filename){
-  lastTrack=filename;
-  player.src="/music/"+encodeURIComponent(filename);
-  const trackTitle=filename.replace(/\.mp3$/i,"");
-  const artist=filename==="Deviled Eggs.mp3"?"Celarb":"Bob James";
+function rebuildMusicQueue(){
+  shuffledTracks=shuffleTracks();
+}
+function playTrack(track){
+  lastTrack=track;
+  if(currentObjectUrl){URL.revokeObjectURL(currentObjectUrl);currentObjectUrl=null;}
+  if(track.original)player.src="/music/"+encodeURIComponent(track.name);
+  else{currentObjectUrl=URL.createObjectURL(track.file);player.src=currentObjectUrl;}
+  const trackTitle=track.name.replace(/\.[^.]+$/,"");
+  const artist=track.original?"Celarb":track.artist||tr("custom-music-artist",{},"Custom music");
   updateMusicTicker(tr("now-playing",{title:trackTitle,artist},"Now playing: {title} - {artist}"));
   player.play().catch(error=>{
     console.error("Music playback failed.",error);
@@ -417,19 +566,61 @@ window.play=function(filename){
     console.error(tr("play-help",{},"Use play(\"filename.mp3\") with a track from the playlist."));
     return;
   }
-  const track=musicTracks.find(name=>name.toLowerCase()===filename.trim().toLowerCase());
+  const track=availableMusicTracks().find(item=>item.name.toLowerCase()===filename.trim().toLowerCase());
   if(!track){
-    console.error(tr("invalid-track",{tracks:musicTracks.join(", ")},"Track not found. Available tracks: {tracks}"));
+    console.error(tr("invalid-track",{tracks:availableMusicTracks().map(item=>item.name).join(", ")},"Track not found. Available tracks: {tracks}"));
     return;
   }
-  shuffledTracks=shuffledTracks.filter(name=>name!==track);
+  shuffledTracks=shuffledTracks.filter(item=>item.id!==track.id);
   playTrack(track);
 };
 function nextTrack(){
-  if(!shuffledTracks.length)shuffledTracks=shuffleTracks();
-  playTrack(shuffledTracks.shift());
+  if(!shuffledTracks.length)rebuildMusicQueue();
+  if(shuffledTracks.length)playTrack(shuffledTracks.shift());
 }
 player.addEventListener("ended",nextTrack);
+customMusicInput.addEventListener("change",async()=>{
+  const files=[...customMusicInput.files];
+  customMusicInput.value="";
+  if(!files.length)return;
+  try{
+    await saveCustomMusic(files);
+    customMusicTracks=await loadStoredCustomMusic();
+    renderCustomMusic();
+    rebuildMusicQueue();
+    setConfigStatus("custom-music-added",{count:files.length},"Added {count} custom track(s).");
+  }catch(error){
+    console.error("Could not save custom music.",error);
+    setConfigStatus("custom-music-storage-error",{},"Custom music could not be saved or loaded in this browser.");
+  }
+});
+customMusicList.addEventListener("click",async event=>{
+  const button=event.target.closest("button[data-track-id]");
+  if(!button)return;
+  try{
+    await deleteStoredCustomMusic(button.dataset.trackId);
+    customMusicTracks=await loadStoredCustomMusic();
+    renderCustomMusic();
+    rebuildMusicQueue();
+    setConfigStatus("custom-music-removed",{},"Custom track removed.");
+  }catch(error){
+    console.error("Could not remove custom music.",error);
+    setConfigStatus("custom-music-storage-error",{},"Custom music could not be saved or loaded in this browser.");
+  }
+});
+keepOriginalMusicToggle.addEventListener("change",()=>{
+  keepOriginalMusic=keepOriginalMusicToggle.checked;
+  localStorage.setItem(keepOriginalMusicStorageKey,String(keepOriginalMusic));
+  rebuildMusicQueue();
+});
+loadStoredCustomMusic().then(tracks=>{
+  customMusicTracks=tracks;
+  renderCustomMusic();
+  rebuildMusicQueue();
+}).catch(error=>{
+  console.error("Could not load custom music.",error);
+  setConfigStatus("custom-music-storage-error",{},"Custom music could not be saved or loaded in this browser.");
+});
 function startMusic(){
   if(!introScreen.classList.contains("is-hidden"))return;
   if(player.paused){if(!player.src)nextTrack();else player.play().catch(error=>console.error("Music playback failed.",error));}

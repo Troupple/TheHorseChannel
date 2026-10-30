@@ -53,6 +53,13 @@
       "enter-city": "Enter a city",
       "set-location": "Set location",
       "mute-audio": "Mute audio",
+      "custom-music-label": "Upload custom music",
+      "keep-original-music": "Keep original music.",
+      "remove-custom-track": "Remove",
+      "custom-music-artist": "Custom music",
+      "custom-music-added": "Added {count} custom track(s).",
+      "custom-music-removed": "Custom track removed.",
+      "custom-music-storage-error": "Custom music could not be saved or loaded in this browser.",
       "disable-title-menu": "Disable title menu",
       "burn-in-note": "Note: disabling this will increase the chances of screen burn in.",
       "language-label": "Language",
@@ -136,7 +143,7 @@
     "credits": {
       "sections": ["Music", "Code", "Media", "API"],
       "items": [
-        ["Cool Album - Bob James", "Deviled Eggs - Celarb"],
+      ["Deviled Eggs - Celarb"],
         ["HTML + CSS + JavaScript - Jambles"],
         ["Horse Channel Logo - Jambles", "Horse Moon Photo - Gaspar Zaldo", "Horse Eating Grass Video - Matthias Köhler", "Sad Horse - Jacek Plak", "Happy Horse - M. Winkeltier"],
         ["Weather forecast and geocoding - Open-Meteo", "Browser location - Geolocation API"]
@@ -197,6 +204,13 @@
       "enter-city": "Saisir une ville",
       "set-location": "Choisir",
       "mute-audio": "Couper le son",
+      "custom-music-label": "Ajouter votre musique",
+      "keep-original-music": "Conserver la musique originale.",
+      "remove-custom-track": "Supprimer",
+      "custom-music-artist": "Musique personnalisée",
+      "custom-music-added": "{count} morceau(x) ajouté(s).",
+      "custom-music-removed": "Morceau personnalisé supprimé.",
+      "custom-music-storage-error": "Impossible d'enregistrer ou de charger la musique personnalisée dans ce navigateur.",
       "disable-title-menu": "Désactiver le menu titre",
       "burn-in-note": "Note: désactiver cette option augmente le risque de rémanence de l'écran.",
       "language-label": "Langue",
@@ -280,7 +294,7 @@
     "credits": {
       "sections": ["Musique", "Code", "Médias", "API"],
       "items": [
-        ["Album « Cool » - Bob James", "« Deviled Eggs » - Celarb"],
+        ["« Deviled Eggs » - Celarb"],
         ["HTML + CSS + JavaScript - Jambles"],
         ["Logo de Horse Channel - Jambles", "Photo « Horse Moon » - Gaspar Zaldo", "Vidéo « Horse Eating Grass » - Matthias Köhler", "Cheval triste - Jacek Plak", "Cheval heureux - M. Winkeltier"],
         ["Prévisions météo et géocodage - Open-Meteo", "Localisation du navigateur - API de géolocalisation"]

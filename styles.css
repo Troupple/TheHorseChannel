@@ -411,6 +411,10 @@ figcaption {
   gap: 0.65rem;
 }
 
+.config-dialog [hidden] {
+  display: none;
+}
+
 .config-dialog input[type="text"] {
   box-sizing: border-box;
   width: 100%;
@@ -421,6 +425,25 @@ figcaption {
   color: #fff;
   border: 1px solid #c7e2ff;
   font: inherit;
+}
+
+.config-dialog input[type="file"] {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0.35rem 0 0.5rem;
+  font: inherit;
+}
+
+.config-dialog .custom-music-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  overflow-wrap: anywhere;
+}
+
+.config-dialog .custom-music-list button {
+  margin: 0 0 0 0.5rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.85em;
 }
 
 .config-dialog .location-form {
